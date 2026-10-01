@@ -1,0 +1,8 @@
+# FortiGate - consola (port1 = gestion)
+config system interface
+    edit port1
+        set mode static
+        set ip 192.168.6.1 255.255.255.248
+        set allowaccess ping https
+    next
+end

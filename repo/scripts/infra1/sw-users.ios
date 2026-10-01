@@ -1,0 +1,20 @@
+! Infra 1 - SW-USERS (Cisco IOL L2)
+enable
+configure terminal
+hostname SW-USERS
+vlan 10
+ name USUARIOS
+exit
+interface e0/0
+ description TRONCAL-HACIA-FGT-A
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ no shutdown
+interface e0/1
+ description PC-USUARIO
+ switchport mode access
+ switchport access vlan 10
+ spanning-tree portfast
+ no shutdown
+end
+write memory

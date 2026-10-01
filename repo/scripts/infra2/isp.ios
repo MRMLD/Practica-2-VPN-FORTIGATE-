@@ -1,0 +1,24 @@
+! Infra 2 - ISP (Cisco IOL L3)
+enable
+configure terminal
+hostname ISP
+interface Ethernet0/0
+ description HACIA-R1
+ ip address 200.6.82.1 255.255.255.252
+ ip nat inside
+ no shutdown
+interface Ethernet0/1
+ description HACIA-FORTIGATE
+ ip address 200.6.82.5 255.255.255.252
+ ip nat inside
+ no shutdown
+interface Ethernet0/2
+ description HACIA-INTERNET
+ ip address dhcp
+ ip nat outside
+ no shutdown
+access-list 1 permit 200.6.82.0 0.0.0.3
+access-list 1 permit 200.6.82.4 0.0.0.3
+ip nat inside source list 1 interface Ethernet0/2 overload
+end
+write memory

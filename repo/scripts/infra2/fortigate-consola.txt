@@ -1,0 +1,8 @@
+# FortiGate - consola, una sola vez (port3 = acceso de administracion)
+config system interface
+ edit port3
+  set mode static
+  set ip 192.168.82.1 255.255.255.248
+  set allowaccess https ping http
+ next
+end

@@ -1,0 +1,47 @@
+! Infra 2 - R1 (Cisco IOL L3): VLAN 10, DHCP, NAT y extremo VPN IPsec
+! Parametros finales: DES + SHA (SHA256 no disponible en la imagen), DH grupo 2
+enable
+configure terminal
+hostname R1
+interface Ethernet0/0
+ description HACIA-ISP
+ ip address 200.6.82.2 255.255.255.252
+ ip nat outside
+ no shutdown
+interface Ethernet0/1
+ no shutdown
+interface Ethernet0/1.10
+ description VLAN10-USUARIOS
+ encapsulation dot1Q 10
+ ip address 10.6.82.1 255.255.255.128
+ ip nat inside
+ip route 0.0.0.0 0.0.0.0 200.6.82.1
+ip dhcp excluded-address 10.6.82.1
+ip dhcp pool USUARIOS
+ network 10.6.82.0 255.255.255.128
+ default-router 10.6.82.1
+ dns-server 8.8.8.8
+! NAT excluye el trafico hacia el servidor (va por la VPN sin traducir)
+access-list 100 deny ip 10.6.82.0 0.0.0.127 10.6.82.128 0.0.0.15
+access-list 100 permit ip 10.6.82.0 0.0.0.127 any
+ip nat inside source list 100 interface Ethernet0/0 overload
+! Trafico interesante
+access-list 110 permit ip 10.6.82.0 0.0.0.127 10.6.82.128 0.0.0.15
+! Fase 1
+crypto isakmp policy 10
+ encryption des
+ authentication pre-share
+ group 2
+ lifetime 86400
+crypto isakmp key Clave0682 address 200.6.82.6
+! Fase 2
+crypto ipsec transform-set TS-VPN esp-des esp-sha-hmac
+ mode tunnel
+crypto map VPN-MAP 10 ipsec-isakmp
+ set peer 200.6.82.6
+ set transform-set TS-VPN
+ match address 110
+interface Ethernet0/0
+ crypto map VPN-MAP
+end
+write memory

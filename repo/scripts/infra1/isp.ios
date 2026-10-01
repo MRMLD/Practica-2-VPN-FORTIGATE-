@@ -1,0 +1,27 @@
+! Infra 1 - ISP (Cisco IOL L3) - pegar en la consola
+enable
+configure terminal
+hostname ISP
+no ip domain-lookup
+interface e0/0
+ description INTERNET-Cloud1
+ ip address dhcp
+ ip nat outside
+ no shutdown
+interface e0/1
+ description HACIA-FGT-A
+ ip address 200.6.82.1 255.255.255.252
+ ip nat inside
+ no shutdown
+interface e0/2
+ description HACIA-FGT-B
+ ip address 200.6.82.5 255.255.255.252
+ ip nat inside
+ no shutdown
+exit
+ip access-list standard NAT-ISP
+ permit 200.6.82.0 0.0.0.7
+exit
+ip nat inside source list NAT-ISP interface e0/0 overload
+end
+write memory
